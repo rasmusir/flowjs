@@ -1,0 +1,7 @@
+{
+    "esnext" : true,
+    "node" : true,
+    "strict" : true,
+    "curly" : true,
+    "eqeqeq" : true
+}
