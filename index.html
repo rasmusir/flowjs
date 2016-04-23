@@ -4,11 +4,13 @@
         <title>Flow.JS Test</title>
         <script src="src/svg.js"> </script>
         <script src="src/svg.filter.js"> </script>
+        <script src="src/svg.foreignobject.js"> </script>
         <script src="src/flow.js"> </script>
         <script src="src/chart.js"> </script>
         <script src="src/block.js"> </script>
         <script src="src/line.js"> </script>
         <script src="src/property.js"> </script>
+        <script src="src/data.js"> </script>
         <link href="src/flow.css" rel="stylesheet" type="text/css">
         <style>
         body, html
@@ -24,7 +26,24 @@
     </head>
     <body>
         <script>
-        new FLOW.Chart(document.body);
+        let c = new FLOW.Chart(document.body);
+
+        let b = new FLOW.EventBlock(c, "Enter", new FLOW.PropertyDescriptor("Test1", FLOW.DATATYPES.NUMBER, true), new FLOW.PropertyDescriptor("Test1_1", FLOW.DATATYPES.STRING, true), new FLOW.PropertyDescriptor("Test1_2", FLOW.DATATYPES.ARRAY, true));
+        let b2 = new FLOW.Block(c, "Blue", new FLOW.PropertyDescriptor("Test1_2", FLOW.DATATYPES.ARRAY));
+        let b3 = new FLOW.Block(c, "Green", new FLOW.PropertyDescriptor("Test3", FLOW.DATATYPES.STRING));
+        let b4 = new FLOW.Block(c, "Red", new FLOW.PropertyDescriptor("Test2", FLOW.DATATYPES.NUMBER));
+        b.x = 300;
+        b.y = 200;
+
+        b2.x = 100;
+        b2.y = 100;
+
+        b3.x = 800;
+        b3.y = 700;
+
+        b4.x = 800;
+        b4.y = 100;
+
         </script>
     </body>
 </html>

@@ -11,21 +11,10 @@ FLOW.Chart = class Chart {
         parent.appendChild(this.div);
 
         this.draw = SVG(this.div);
+        this.selectedProperty = null;
 
-        let b = new FLOW.Block(this);
-        let b2 = new FLOW.Block(this);
-        let b3 = new FLOW.Block(this);
-        b.x = 300;
-        b.y = 200;
-
-        b2.x = 100;
-        b2.y = 100;
-
-        b3.x = 800;
-        b3.y = 700;
-
-        b2.next.connect(b.trigger);
-        b.next.connect(b3.trigger);
+        this.propertyHighlighter = this.draw.circle().attr({fill: "rgba(255,255,255,0.5)"}).hide().radius(10);
+        this.propertyHighlighter.style("pointer-events", "none");
 
         window.addEventListener("mousemove", (e) => {
             if (this.moveBlock)
@@ -38,11 +27,46 @@ FLOW.Chart = class Chart {
         window.addEventListener("mouseup", (e) => {
             this.moveBlock = null;
         });
+
+        this.div.addEventListener("mousedown", (e) => {
+            this.deselect();
+        });
     }
 
     startMove(block, event)
     {
         this.moveBlock = block;
         this.moveOffset = { x: event.clientX - block.x, y: event.clientY - block.y };
+    }
+
+    clickProperty(target)
+    {
+        if (this.selectedProperty === null)
+        {
+            this.selectedProperty = target;
+            target.block.group.put(this.propertyHighlighter).center(target.x, target.y).show();
+            this.propertyHighlighter.attr("fill", target.color).opacity(0.5);
+            this.propertyHighlighter.front();
+        }
+        else if (target === this.selectedProperty){
+            this.deselect();
+        }
+        else
+        {
+            if (this.selectedProperty.connect(target))
+            {
+                this.deselect();
+            }
+            else {
+                this.deselect();
+                this.clickProperty(target);
+            }
+        }
+    }
+
+    deselect()
+    {
+        this.selectedProperty = null;
+        this.propertyHighlighter.hide();
     }
 };
