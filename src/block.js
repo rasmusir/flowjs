@@ -1,15 +1,18 @@
 "use strict";
 
 FLOW.Block = class Block {
-    constructor(chart, name, ...propertyDescriptors)
+    constructor(chart, func)
     {
-        propertyDescriptors = propertyDescriptors || [];
+        let propertyDescriptors = func.args || [];
+        this.function = func;
         this.chart = chart;
         this.group = chart.draw.group();
+        this._x = 0;
+        this._y = 0;
         this.titleHeight = 24;
         this.height = 0;
         this.width = 130;
-        this.name = name;
+        this.name = func.name;
         this.block = this.group.rect(this.width, this.height).attr({fill: "rgba(40,40,40,0.85)", stroke: "rgba(0,0,0,0.2)"}).stroke({width: "1px"});
         let gradient = this.chart.draw.gradient('linear', (stop) => {
             stop.at({ offset: 0, color: "rgba(255,255,255,0.4)" });
@@ -36,14 +39,14 @@ FLOW.Block = class Block {
             {
                 let y = outputs * 20;
                 max = Math.max(y, max);
-                this.outputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: this.width - 10, output: pd.output, type: pd.type}));
+                this.outputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: this.width - 10, output: true, type: pd.type, value: pd.value}));
                 outputs++;
             }
             else
             {
                 let y = inputs * 20;
                 max = Math.max(y, max);
-                this.inputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: 10, output: pd.output, type: pd.type}));
+                this.inputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: 10, output: false, type: pd.type, value: pd.value}));
                 inputs++;
             }
         });
@@ -78,6 +81,7 @@ FLOW.Block = class Block {
 
     _move()
     {
+
         this.group.move(this._x, this._y);
         this.lines.forEach((l) => {
             l.update();
@@ -123,13 +127,37 @@ FLOW.Block = class Block {
 
         return false;
     }
+
+    run()
+    {
+        let args = [];
+        this.inputs.forEach((i) => {
+            args.push(i.getValue());
+        });
+        let res = this.function.f(...args);
+
+        if (Array.isArray(res))
+        {
+            let i = 0;
+            this.outputs.forEach((o) => {
+                o.value = res[i];
+                i++;
+            });
+        }
+        else if (this.outputs.length > 0) {
+            this.outputs[0].value = res;
+        }
+
+        this.next.run();
+    }
 };
 
 FLOW.EventBlock = class EventBlock extends FLOW.Block
 {
-    constructor(chart, name, ...properties)
+    constructor(chart, func)
     {
-        super(chart, name, ...properties);
+        super(chart, func);
+        this.run = func.e;
         this.trigger.remove();
         let gradient = this.chart.draw.gradient('linear', (stop) => {
             stop.at({ offset: 0, color: "rgba(255,255,200,0.9)" });
@@ -144,10 +172,10 @@ FLOW.EventBlock = class EventBlock extends FLOW.Block
 
 FLOW.NumberBlock = class NumberBlock extends FLOW.Block
 {
-    constructor(chart, name)
+    constructor(chart, func)
     {
         //TODO Make ready for NumnerProperty
-        super(chart, name);
+        super(chart, func);
         this.trigger.remove();
         this.next.remove();
         let gradient = this.chart.draw.gradient('linear', (stop) => {
@@ -158,5 +186,20 @@ FLOW.NumberBlock = class NumberBlock extends FLOW.Block
         gradient.from(0, 0).to(0, 1);
         this.titleBar.attr("fill", gradient);
         delete this.trigger;
+    }
+};
+
+FLOW.VariableBlock = class VariableBlock extends FLOW.Block
+{
+    constructor(chart, variable)
+    {
+        super(chart, variable);
+        this.trigger.remove();
+        this.next.remove();
+        let gradient = this.chart.draw.gradient('linear', (stop) => {
+            stop.at({ offset: 0, color: "rgba(255,200,200,0.9)" });
+            stop.at({ offset: 0.1, color: "rgba(230,100,100,0.5)" });
+            stop.at({ offset: 1, color: 'rgba(100,50,50,0.5)' });
+        });
     }
 };

@@ -8,6 +8,7 @@ FLOW.Chart = class Chart {
         this.div = document.createElement("div");
         this.div.classList.add("flow-chart");
         this.div.id = "flowchart";
+        this._events = [];
         parent.appendChild(this.div);
 
         this.draw = SVG(this.div);
@@ -31,6 +32,31 @@ FLOW.Chart = class Chart {
         this.div.addEventListener("mousedown", (e) => {
             this.deselect();
         });
+    }
+
+    run()
+    {
+        let instance = new FLOW.Instance(this);
+        instance.run();
+        return instance;
+    }
+
+    add(func)
+    {
+        if (func.v)
+        {
+            return new FLOW.VariableBlock(this, func);
+        }
+        else if (func.f)
+        {
+            return new FLOW.Block(this, func);
+        }
+        else if (func.e)
+        {
+            let block = new FLOW.EventBlock(this, func);
+            this._events.push(block);
+            return block;
+        }
     }
 
     startMove(block, event)
@@ -68,5 +94,10 @@ FLOW.Chart = class Chart {
     {
         this.selectedProperty = null;
         this.propertyHighlighter.hide();
+    }
+
+    getEvents()
+    {
+        return this._events;
     }
 };
