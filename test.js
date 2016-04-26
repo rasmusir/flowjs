@@ -31,4 +31,6 @@ FLOW.define("test", (def) => {
     def.function("repeat", repeat, {name: "completed", type: FLOW.DATATYPES.TRIGGER});
     def.function("to string", (o) => { return o; }, {name: "object", type: FLOW.DATATYPES.ANY}, {name: "string", type: FLOW.DATATYPES.STRING, output:true});
     def.variable("strings", "Hello", FLOW.DATATYPES.STRING, "World", FLOW.DATATYPES.STRING);
+
+    //TODO Add .inputs and .outputs instead of inline objects in the definition function.
 });

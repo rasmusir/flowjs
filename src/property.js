@@ -141,7 +141,7 @@ FLOW.Property = class Property {
 FLOW.NextProperty = class NextProperty extends FLOW.Property{
     constructor(block, o)
     {
-        super(block, {x: o.x, y: o.y, maxConnections: -1}, true);
+        super(block, {x: o.x, y: o.y, maxConnections: 1}, true);
         this.type = FLOW.DATATYPES.TRIGGER;
         this.radius = 8;
         this.text = "Next";
