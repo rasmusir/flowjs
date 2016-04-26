@@ -19,10 +19,16 @@ FLOW.Definition = class Definition
         this.functions[name] = {name: name, f: f, args: pd};
     }
 
-    variable(name, value, type)
+    variable(name, ...vars)
     {
-        let p = new FLOW.PropertyDescriptor(name, type, true, -1, value);
-        this.variables[name] = {name: name, v: value, args: [p]};
+        let pd = [];
+        for (let i = 0; i < vars.length; i += 2)
+        {
+            let value = vars[i];
+            let type = vars[i + 1];
+            pd.push(new FLOW.PropertyDescriptor(value, type, true, -1, value));
+            this.variables[name] = {name: name, args: pd, v: true};
+        }
     }
 
     event(name, handler)

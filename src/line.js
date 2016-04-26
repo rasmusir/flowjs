@@ -4,10 +4,6 @@ FLOW.Line = class Line {
     constructor(propertyA, propertyB)
     {
         this.chart = propertyA.block.chart;
-        this.color = propertyB.color;
-        this.path = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({stroke:`rgba(${this.color.r},${this.color.g},${this.color.b},0.7)`, fill: "none"}).stroke({width: "2px"});
-        this.pathMask = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({fill: "none"}).stroke({color: "transparent", width: "10px", linecap: "round"});
-
         if (propertyA.output)
         {
             this.propertyA = propertyA;
@@ -17,6 +13,11 @@ FLOW.Line = class Line {
             this.propertyA = propertyB;
             this.propertyB = propertyA;
         }
+        this.color = this.propertyA.color;
+        this.path = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({stroke:`rgba(${this.color.r},${this.color.g},${this.color.b},0.7)`, fill: "none"}).stroke({width: "2px"});
+        this.pathMask = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({fill: "none"}).stroke({color: "transparent", width: "10px", linecap: "round"});
+
+
 
 
         this.update();

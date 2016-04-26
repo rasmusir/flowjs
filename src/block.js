@@ -30,23 +30,31 @@ FLOW.Block = class Block {
 
         this.outputs = [];
         this.inputs = [];
+        this.triggers = [];
         let outputs = 0;
         let inputs = 0;
         let max = 0;
         let topOffset = this.titleHeight + 10;
         propertyDescriptors.forEach((pd) => {
-            if (pd.output)
+            if (pd.type === FLOW.DATATYPES.TRIGGER)
             {
                 let y = outputs * 20;
                 max = Math.max(y, max);
-                this.outputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: this.width - 10, output: true, type: pd.type, value: pd.value}));
+                this.triggers.push(new FLOW.NextProperty(this, {y: topOffset + y, x: this.width - 10, output: true, type: FLOW.DATATYPES.TRIGGER, name: pd.name}));
+                outputs++;
+            }
+            else if (pd.output)
+            {
+                let y = outputs * 20;
+                max = Math.max(y, max);
+                this.outputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: this.width - 10, output: true, type: pd.type, value: pd.value, name: pd.name}));
                 outputs++;
             }
             else
             {
                 let y = inputs * 20;
                 max = Math.max(y, max);
-                this.inputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: 10, output: false, type: pd.type, value: pd.value}));
+                this.inputs.push(new FLOW.Property(this, {maxConnections: pd.maxConnections, y: topOffset + y, x: 10, output: false, type: pd.type, value: pd.value, name: pd.name}));
                 inputs++;
             }
         });
@@ -130,11 +138,16 @@ FLOW.Block = class Block {
 
     run()
     {
+        let triggers = [];
+        this.triggers.forEach((i) => {
+            triggers.push({run: i.run.bind(i)});
+        });
         let args = [];
         this.inputs.forEach((i) => {
             args.push(i.getValue());
         });
-        let res = this.function.f(...args);
+
+        let res = this.function.f(...triggers, ...args);
 
         if (Array.isArray(res))
         {

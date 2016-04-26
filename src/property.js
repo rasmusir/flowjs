@@ -5,7 +5,8 @@ FLOW.PROPERTYCOLORS = [
     {r: 255, g: 100, b: 100},
     {r: 100, g: 255, b: 100},
     {r: 100, g: 100, b: 255},
-    {r: 255, g: 255, b: 100}
+    {r: 255, g: 255, b: 100},
+    {r: 255, g: 255, b: 255}
 ];
 
 /**
@@ -19,9 +20,9 @@ FLOW.PropertyDescriptor = class PropertyDescriptor
     constructor(name, type, output, maxConnections, value)
     {
         this.name = name;
-        this.type = FLOW.DATATYPES.UNKNOWN || type;
+        this.type = FLOW.DATATYPES.TRIGGER || type;
         this.output = output || false;
-        this.maxConnections = maxConnections || 1;
+        this.maxConnections = maxConnections || (output ? -1 : 1);
         this.value = value || null;
     }
 };
@@ -29,7 +30,7 @@ FLOW.PropertyDescriptor = class PropertyDescriptor
 FLOW.Property = class Property {
     constructor(block, o, stop)
     {
-        this.text = "noname";
+        this.name = o.name || "noname";
         this.block = block;
         this.x = o.x;
         this.y = o.y;
@@ -43,6 +44,15 @@ FLOW.Property = class Property {
         this.targets = [];
         if (!stop)
         {
+            this.text = this.block.group.plain(this.name).attr("fill", `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.2)`);
+            if (this.output)
+            {
+                this.text.center(this.x - this.text.length() / 2 - this.radius - 3, this.y);
+            }
+            else
+            {
+                this.text.center(this.x + this.text.length() / 2 + this.radius + 3, this.y);
+            }
             this.connector = this.block.group.circle().radius(this.radius).center(this.x, this.y).attr({fill: "transparent", stroke: `rgba(${this.color.r},${this.color.g},${this.color.b},0.8)`}).stroke({width: "2px"});
             this.init();
         }
@@ -77,7 +87,7 @@ FLOW.Property = class Property {
     connect(property)
     {
         if (!this.canConnect || !property.canConnect || property.output === this.output
-            || property.block === this.block || property.type !== this.type || this.block.hasLine(property, this))
+            || property.block === this.block || (property.type !== this.type && (property.type !== FLOW.DATATYPES.ANY && this.type !== FLOW.DATATYPES.ANY)) || this.block.hasLine(property, this))
         {
             return false;
         }
@@ -132,6 +142,7 @@ FLOW.NextProperty = class NextProperty extends FLOW.Property{
     constructor(block, o)
     {
         super(block, {x: o.x, y: o.y, maxConnections: -1}, true);
+        this.type = FLOW.DATATYPES.TRIGGER;
         this.radius = 8;
         this.text = "Next";
         this.output = true;
@@ -142,8 +153,12 @@ FLOW.NextProperty = class NextProperty extends FLOW.Property{
 
     connect(property)
     {
-        this.triggers.push(property);
-        return super.connect(property);
+        let s = super.connect(property);
+        if (s)
+        {
+            this.triggers.push(property);
+        }
+        return s;
     }
 
     disconnect(property)
@@ -152,7 +167,7 @@ FLOW.NextProperty = class NextProperty extends FLOW.Property{
         super.disconnect(property);
     }
 
-    run(...args)
+    run()
     {
         this.triggers.forEach((t) => {
             t.run();
@@ -164,6 +179,7 @@ FLOW.TriggerProperty = class TriggerProperty extends FLOW.Property{
     constructor(block, o)
     {
         super(block, {x: o.x, y: o.y, maxConnections: -1}, true);
+        this.type = FLOW.DATATYPES.TRIGGER;
         this.radius = 8;
         this.text = "Trigger";
         this.output = false;
