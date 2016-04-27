@@ -11,8 +11,8 @@ FLOW.Block = class Block {
         this._y = 0;
         this.titleHeight = 24;
         this.height = 0;
-        this.width = 130;
-        this.name = func.name;
+        this.width = 170;
+        this.name = func.def.name + "." + func.name;
         this.block = this.group.rect(this.width, this.height).attr({fill: "rgba(40,40,40,0.85)", stroke: "rgba(0,0,0,0.2)"}).stroke({width: "1px"});
         let gradient = this.chart.draw.gradient('linear', (stop) => {
             stop.at({ offset: 0, color: "rgba(255,255,255,0.4)" });

@@ -14,6 +14,7 @@
         <script src="src/compiler.js"> </script>
         <script src="src/definition.js"> </script>
         <script src="src/instance.js"> </script>
+        <script src="src/contextmenu.js"> </script>
 
         <!-- FLOW DEFINITIONS -->
         <script src="test.js"> </script>
@@ -36,14 +37,6 @@
         <script>
         let c = new FLOW.Chart(document.body);
         let d = FLOW.getDefinition("test");
-        c.add(d.get("measure"));
-        c.add(d.get("log")).y = 40;
-        c.add(d.get("warn")).y = 80;
-        c.add(d.get("combine")).y = 120;
-        c.add(d.get("strings")).y = 160;
-        c.add(d.get("begin")).y = 200;
-        c.add(d.get("repeat")).y = 240;
-        c.add(d.get("to string")).y = 280;
 
         </script>
     </body>

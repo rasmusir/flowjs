@@ -47,7 +47,7 @@ FLOW.Line = class Line {
 
         let d = Math.sqrt(Math.pow(tx - sx, 2) + Math.pow(ty - sy, 2));
 
-        let dist = Math.max((tx - sx) / 2, 40);
+        let dist = Math.max((tx - sx) / 2, d / 2.5);
 
         let C1 = (sx + dist) + "," + sy;
         let C2 = (tx - dist) + "," + ty;

@@ -1,61 +1,108 @@
 "use strict";
 
-FLOW.Definition = class Definition
-{
-    constructor(name)
+FLOW.Definition = (function () {
+    class Definition
     {
-        this.name = name;
-        this.functions = [];
-        this.variables = [];
-        this.events = [];
-    }
-
-    function(name, f, ...args)
-    {
-        let pd = [];
-        args.forEach((arg) => {
-            pd.push(new FLOW.PropertyDescriptor(arg.name, arg.type, arg.output, arg.max));
-        });
-        this.functions[name] = {name: name, f: f, args: pd};
-    }
-
-    variable(name, ...vars)
-    {
-        let pd = [];
-        for (let i = 0; i < vars.length; i += 2)
+        constructor(name)
         {
-            let value = vars[i];
-            let type = vars[i + 1];
-            pd.push(new FLOW.PropertyDescriptor(value, type, true, -1, value));
-            this.variables[name] = {name: name, args: pd, v: true};
+            this.name = name;
+            this.functions = [];
+            this.variables = [];
+            this.events = [];
+        }
+
+        function(name, f, ...args)
+        {
+            let pd = [];
+            args.forEach((arg) => {
+                pd.push(new FLOW.PropertyDescriptor(arg.name, arg.type, arg.output, arg.max));
+            });
+            this.functions[name] = {name: name, f: f, args: pd, def: this};
+        }
+
+        variable(name, ...vars)
+        {
+            let pd = [];
+            for (let i = 0; i < vars.length; i += 2)
+            {
+                let value = vars[i];
+                let type = vars[i + 1];
+                pd.push(new FLOW.PropertyDescriptor(value, type, true, -1, value));
+                this.variables[name] = {name: name, args: pd, v: true, def: this};
+            }
+        }
+
+        event(name, handler)
+        {
+            this.events[name] = {name: name, e: handler, def: this};
+        }
+
+        get(name)
+        {
+            let f = this.functions[name];
+            if (f)
+            {
+                return f;
+            }
+            let v = this.variables[name];
+            if (v)
+            {
+                return v;
+            }
+            let e = this.events[name];
+            if (e)
+            {
+                return e;
+            }
+            return null;
+        }
+
+        find(name)
+        {
+            let results = [];
+            let regex = new RegExp(`${name}`, "i");
+            for (let pn in this.functions)
+            {
+                if (regex.test(pn))
+                {
+                    results.push(this.functions[pn]);
+                }
+            }
+            for (let pn in this.events)
+            {
+                if (regex.test(pn))
+                {
+                    results.push(this.events[pn]);
+                }
+            }
+            for (let pn in this.variables)
+            {
+                if (regex.test(pn))
+                {
+                    results.push(this.variables[pn]);
+                }
+            }
+            return results;
+        }
+    };
+
+    class Function
+    {
+        constructor(name, f)
+        {
+            this.inputs = [];
+            this.outputs = [];
+            this.f = f;
+            this.name = name;
+        }
+
+        inputs(...arg)
+        {
+            return this;
         }
     }
-
-    event(name, handler)
-    {
-        this.events[name] = {name: name, e: handler};
-    }
-
-    get(name)
-    {
-        let f = this.functions[name];
-        if (f)
-        {
-            return f;
-        }
-        let v = this.variables[name];
-        if (v)
-        {
-            return v;
-        }
-        let e = this.events[name];
-        if (e)
-        {
-            return e;
-        }
-        return null;
-    }
-};
+    return Definition;
+})();
 
 FLOW._definitions = [];
 

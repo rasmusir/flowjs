@@ -34,3 +34,9 @@ FLOW.define("test", (def) => {
 
     //TODO Add .inputs and .outputs instead of inline objects in the definition function.
 });
+
+FLOW.define("Math", (d) => {
+    d.function("min", Math.min, {name: "a", type: FLOW.DATATYPES.NUMBER}, {name: "b", type: FLOW.DATATYPES.NUMBER}, {name: "value", type: FLOW.DATATYPES.NUMBER, output: true});
+    d.function("max", Math.max, {name: "a", type: FLOW.DATATYPES.NUMBER}, {name: "b", type: FLOW.DATATYPES.NUMBER}, {name: "value", type: FLOW.DATATYPES.NUMBER, output: true});
+    d.function("cos", Math.cos, {name: "radians", type: FLOW.DATATYPES.NUMBER}, {name: "value", type: FLOW.DATATYPES.NUMBER, output: true});
+});

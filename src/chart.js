@@ -17,6 +17,14 @@ FLOW.Chart = class Chart {
         this.propertyHighlighter = this.draw.circle().attr({fill: "rgba(255,255,255,0.5)"}).hide().radius(10);
         this.propertyHighlighter.style("pointer-events", "none");
 
+        this.contextmenu = new FLOW.ContextMenu(this);
+
+        this.div.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.cancelBubble = true;
+            this.contextmenu.show(e.clientX, e.clientY);
+        });
+
         window.addEventListener("mousemove", (e) => {
             if (this.moveBlock)
             {
@@ -30,7 +38,14 @@ FLOW.Chart = class Chart {
         });
 
         this.div.addEventListener("mousedown", (e) => {
-            this.deselect();
+            if (!this.contextmenu.checkClose(e))
+            {
+                return;
+            }
+            if (e.which === 1)
+            {
+                this.deselect();
+            }
         });
     }
 
