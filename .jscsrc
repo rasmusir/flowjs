@@ -6,7 +6,6 @@
     "requireSemicolons" : true,
     "requireSpaceAfterKeywords" : true,
     "requireSpaceBetweenArguments": true,
-    "esnext": true,
     "disallowVar": true,
     "requireSpaceAfterBinaryOperators": [
         "=",
