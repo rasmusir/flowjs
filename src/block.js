@@ -3,8 +3,9 @@
 FLOW.Block = class Block {
     constructor(chart, func)
     {
-        let propertyDescriptors = func.args || [];
+        let propertyDescriptors = func.returns.concat(func.args);
         this.function = func;
+        this.opt = func.opt;
         this.chart = chart;
         this.group = chart.draw.group();
         this._x = 0;
@@ -12,25 +13,46 @@ FLOW.Block = class Block {
         this.titleHeight = 24;
         this.height = 0;
         this.width = 170;
-        this.name = func.def.name + "." + func.name;
-        this.block = this.group.rect(this.width, this.height).attr({fill: "rgba(40,40,40,0.85)", stroke: "rgba(0,0,0,0.2)"}).stroke({width: "1px"});
+        this.id = chart.newID();
+        this.name = func.name;
+        if (func.def.opt.prefix !== undefined)
+        {
+            this.name = func.def.opt.prefix + this.name;
+        }
+        else if (!func.external)
+        {
+            this.name = func.def.name + "." + func.name;
+        }
+        //this.name = func.external ? func.name : (func.def.name + "." + func.name);
+        this.block = this.group.rect(this.width, this.height).attr({fill: "rgba(40,40,40,0.85)", stroke: "rgba(0,0,0,0.2)"}).stroke({width: "1px"}).radius(10);
         let gradient = this.chart.draw.gradient('linear', (stop) => {
             stop.at({ offset: 0, color: "rgba(255,255,255,0.4)" });
             stop.at({ offset: 0.1, color: "rgba(230,230,230,0.2)" });
             stop.at({ offset: 1, color: 'rgba(100,100,100,0.2)' });
         });
         gradient.from(0, 0).to(0, 1);
-        this.titleBar = this.group.rect(this.width, this.titleHeight).attr({fill: gradient});
+        this.titleBar = this.group.rect(this.width, this.titleHeight).attr({fill: gradient}).radius(10);
         this.title = this.group.text(this.name).center(this.width / 2, this.titleHeight / 2).attr("fill", "white");
         this.title.addClass("noselect");
 
         this.lines = [];
-        this.next = new FLOW.NextProperty(this, {x: this.width - 10, y: 12});
-        this.trigger = new FLOW.TriggerProperty(this, {x: 10, y: 12});
+        if (!this.opt.omittNext)
+        {
+            this.next = new FLOW.NextProperty(this, {x: this.width - 10, y: 12, name: " "}, true);
+        }
+        if (!this.opt.omittTrigger)
+        {
+            this.trigger = new FLOW.TriggerProperty(this, {x: 10, y: 12});
+        }
+
+        this.nextBlock = null;
+        this.triggerBlock = null;
 
         this.outputs = [];
         this.inputs = [];
         this.triggers = [];
+        this.in = 0;
+        this.out = 0;
         let outputs = 0;
         let inputs = 0;
         let max = 0;
@@ -40,7 +62,7 @@ FLOW.Block = class Block {
             {
                 let y = outputs * 20;
                 max = Math.max(y, max);
-                this.triggers.push(new FLOW.NextProperty(this, {y: topOffset + y, x: this.width - 10, output: true, type: FLOW.DATATYPES.TRIGGER, name: pd.name}));
+                this.outputs.push(new FLOW.NextProperty(this, {y: topOffset + y, x: this.width - 10, output: true, type: FLOW.DATATYPES.TRIGGER, name: pd.name}));
                 outputs++;
             }
             else if (pd.output)
@@ -61,6 +83,13 @@ FLOW.Block = class Block {
 
         this.height = topOffset + max + 10;
         this.block.size(this.width, this.height);
+
+        this.group.node.oncontextmenu = (e) => {
+            e.preventDefault();
+            e.stopPropagation;
+            e.cancelBubble = true;
+            this.chart.contextmenu.show(e.clientX, e.clientY, this);
+        };
 
         this.group.mousedown((e) => {
             this.group.front();
@@ -109,7 +138,7 @@ FLOW.Block = class Block {
     connect(propertyA, propertyB)
     {
         let line = new FLOW.Line(propertyA, propertyB);
-        this.lines.push(line);
+        propertyA.block.lines.push(line);
         propertyB.block.lines.push(line);
     }
 
@@ -120,6 +149,25 @@ FLOW.Block = class Block {
         {
             this.lines.splice(index, 1);
         }
+    }
+
+    remove()
+    {
+        let lines = this.lines.slice();
+        lines.forEach((l) => {
+            l.disconnect();
+            console.log(l);
+        });
+        this.chart.remove(this);
+
+        this.outputs.forEach((o) => { o.destroy(); });
+        this.inputs.forEach((i) => { i.destroy(); });
+
+        delete this.outputs;
+        delete this.inputs;
+        this.group.node.oncontextmenu = null;
+        this.group.mousedown(null);
+        this.group.remove();
     }
 
     hasLine(propertyA, propertyB)

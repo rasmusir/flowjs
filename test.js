@@ -1,55 +1,99 @@
 "use strict";
-FLOW.define("test", (def) => {
+FLOW.define("common", (d) => {
 
-    let handler = (run) => {
-        run();
-    };
+    d.function("console.log(*:value)");
 
-    let customFunction = (a1, a2) => {
-        console.warn(a1 + " " + a2);
-    };
+    d.pattern("Store(n:in) n:value", `
+        let $value = $in;
+    `);
 
-    let combine = (a, b) => {
-        return a + b;
-    };
-
-    let repeat = (trigger, count) => {
-        for (let i = 0; i < count; i++)
+    d.pattern("For(n:count) t:do,n:i", `
+        for (let $i = 0; $i < $count; $i++)
         {
-            trigger.run(i);
+            $do
         }
-    };
+    `);
 
-    def.event("begin", handler);
-    def.function("log", console.log.bind(console), {name: "object", type: FLOW.DATATYPES.ANY});
-    def.function("warn", customFunction, {name: "text", type: FLOW.DATATYPES.STRING}, {name: "text", type: FLOW.DATATYPES.STRING});
-    def.function("combine", combine,
-                {name: "text", type: FLOW.DATATYPES.STRING},
-                {name: "text", type: FLOW.DATATYPES.STRING},
-                {name: "text", type: FLOW.DATATYPES.STRING, output: true});
-    def.function("measure", (s) => { return s.length; }, {name: "string", type: FLOW.DATATYPES.STRING}, {name: "length", type: FLOW.DATATYPES.NUMBER, output: true});
-    def.function("repeat", repeat, {name: "completed", type: FLOW.DATATYPES.TRIGGER}, {name: "n", type: FLOW.DATATYPES.NUMBER, output: true}, {name: "count", type: FLOW.DATATYPES.NUMBER});
-    def.function("to string", (o) => { return o; }, {name: "object", type: FLOW.DATATYPES.ANY}, {name: "string", type: FLOW.DATATYPES.STRING, output:true});
-    def.variable("strings", "Hello", FLOW.DATATYPES.STRING, "World", FLOW.DATATYPES.STRING);
-    def.variable("numbers", 1, FLOW.DATATYPES.NUMBER, 5, FLOW.DATATYPES.NUMBER);
+    d.pattern("Run() t:code", `
+        function main()
+        {
+            $code
+        }
+    `, {omittNext: true, omittTrigger: true});
 
-    //TODO Add .inputs and .outputs instead of inline objects in the definition function.
+    d.pattern("TryCatch() t:try,t:catch,o:error,t:finally", `
+        try
+        {
+            $try
+        }
+        catch ($error)
+        {
+            $catch
+        }
+        finally
+        {
+            $finally
+        }
+    `);
+
+    d.pattern("ForEachKVP(o:object) t:do,o:key,o:value", `
+        for (let $key in $object) {
+            let $value = $object[$key];
+            $do
+        }
+    `);
+
+    d.pattern("ForEach(a:array) t:do, o:object", `
+        $array.forEach(($object) => {
+            $do
+        });
+    `);
+
+    d.method("s:string.toUpperCase() s:result");
+    d.property("s:string.length n:length");
+}, {prefix: ""});
+
+FLOW.define("Math", (define) => {
+    define.method("min(n:a, n:b) n:min");
+    define.method("max(n:a, n:b) n:max");
+    define.method("random() n:number");
+    define.method("round(n:number) n:result");
+    define.pattern("x20(n:a) n:product", `let $product = $a*20;`);
+}, {prefix:"Math."});
+
+FLOW.define("Array", (define) => {
+    define.pattern("length(a:array) n:length", `$array.length`, {omittNext: true, omittTrigger: true});
 });
 
-FLOW.define("Math", (d) => {
-    d.function("min", Math.min, {name: "a", type: FLOW.DATATYPES.NUMBER}, {name: "b", type: FLOW.DATATYPES.NUMBER}, {name: "value", type: FLOW.DATATYPES.NUMBER, output: true});
-    d.function("max", Math.max, {name: "a", type: FLOW.DATATYPES.NUMBER}, {name: "b", type: FLOW.DATATYPES.NUMBER}, {name: "value", type: FLOW.DATATYPES.NUMBER, output: true});
-    d.function("cos", Math.cos, {name: "radians", type: FLOW.DATATYPES.NUMBER}, {name: "value", type: FLOW.DATATYPES.NUMBER, output: true});
-});
+FLOW.define("dom", (define) => {
 
-FLOW.define("Kevin", (d) => {
-    d.variable("name", "Kevin", FLOW.DATATYPES.STRING);
+    define.prepend(`
+        ['forEach', 'map', 'filter', 'reduce', 'reduceRight', 'every', 'some'].forEach(
+        function(p) {
+            NodeList.prototype[p] = HTMLCollection.prototype[p] = Array.prototype[p];
+        });
+    `);
 
-    function setTitle(title)
-    {
-        document.title = title;
-    }
+    define.type("node", {r: 100, g: 200, b: 255});
 
-    d.function("setTitle", setTitle, {name: "title", type: FLOW.DATATYPES.STRING});
+    define.pattern("body() node:body", "document.body", {omittNext: true, omittTrigger: true});
+    define.pattern("firstChild(node:node) node:result", "$node.firstChild", {omittNext: true, omittTrigger: true});
+    define.pattern("forEachChild(node:node) t:do,node:child", `
+        let $child_chdrn = $node.children;
+        for (let i = 0; i < $child_chdrn.length; i++)
+        {
+            let $child = $child_chdrn[i];
+            $do
+        }
+    `);
+
+    define.pattern("children(node:node) a:array", `$node.children`, {omittNext: true, omittTrigger: true});
+}, {prefix: ""});
+
+FLOW.define("Space", (define) => {
+
+    define.type("vector", {r: 255, g: 255, b: 0});
+
+    define.pattern("createVector(n:x, n:y, n:z) vector:newVector", `let $newVector = {x: $x, y: $y, z: $z};`);
 
 });

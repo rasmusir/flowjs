@@ -14,11 +14,9 @@ FLOW.Line = class Line {
             this.propertyB = propertyA;
         }
         this.color = this.propertyA.color;
-        this.path = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({stroke:`rgba(${this.color.r},${this.color.g},${this.color.b},0.7)`, fill: "none"}).stroke({width: "2px"});
+        this.pattern = this.propertyA.pattern;
+        this.path = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({stroke:`rgba(${this.color.r},${this.color.g},${this.color.b},1)`, fill: "none"}).stroke({width: "2px", dasharray: this.pattern.join(",")});
         this.pathMask = this.chart.draw.path("M0,0 C0,0 0,0 0,0").attr({fill: "none"}).stroke({color: "transparent", width: "10px", linecap: "round"});
-
-
-
 
         this.update();
 
@@ -31,7 +29,7 @@ FLOW.Line = class Line {
         });
 
         this.pathMask.click((e) => {
-            this.destroy();
+            this.disconnect();
         });
 
         this.pathMask.back();
@@ -57,11 +55,21 @@ FLOW.Line = class Line {
         this.pathMask.plot(plot);
     }
 
-    destroy()
+    disconnect()
     {
         this.propertyA.disconnect(this.propertyB);
         this.propertyA.block.removeLine(this);
         this.propertyB.block.removeLine(this);
+
+        if (this.propertyA.source === this.propertyB)
+        {
+            this.propertyA.source = null;
+        }
+        else
+        {
+            this.propertyB.source = null;
+        }
+
         this.path.remove();
         this.pathMask.remove();
     }

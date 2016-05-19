@@ -1,11 +1,131 @@
-.flow-chart
+html,body
+{
+    background-color: #434343;
+    background-color: #34495e;
+    background-image:linear-gradient(#434343, #282828);
+    height: 100%;
+    width: 100%;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    font-family: arial;
+}
+.holder
+{
+    flex-grow: 1;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+.holder .tabs
+{
+    flex-grow: 0;
+    flex-shrink : 0;
+    display: flex;
+
+    height: 45px;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding-top: 5px;
+    padding-left: 10px;
+}
+.holder .tabs .tab
+{
+    height: 40px;
+    width: 150px;
+    box-sizing: border-box;
+    color: rgba(255,255,255, 0.5);
+    line-height: 38px;
+    text-align: center;
+
+}
+.holder .tabs .tab.selected
+{
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    border-bottom: 2px solid #3498db;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+    color: rgba(255,255,255, 1);
+}
+.holder .content
+{
+    flex-grow: 1;
+    display: flex;
+}
+.sidebar
+{
+    box-sizing: border-box;
+    width: 200px;
+    padding: 10px;
+    //border-right: 1px solid rgba(0,0,0,0.1);
+}
+.sidebar button
 {
     width: 100%;
-    height: 100%;
-    background: #555;
+    height: 50px;
+    font-size: 18px;
+
+    background: linear-gradient(#1abc9c,#16a085);
+    border: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 3px solid rgba(0,0,0,0.3);
+    color: rgba(255,255,255,1);
+    outline: none;
+    border-top: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    //transition: all 0.1s;
+}
+.sidebar button:active
+{
+    margin-top: 1px;
+    border-bottom: 1px solid rgba(0,0,0,0.3);
+}
+.toaster
+{
+    border: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 2px solid rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,1);
+    font-size: 18px;
+    padding: 20px;
     position: absolute;
-    top: 0px;
-    left: 0px;
+    bottom: 0px;
+    left: 50%;
+    transform: translate(-50%,-100%);
+    background: linear-gradient(#1abc9c,#16a085);
+    margin: auto;
+    border-radius: 2px;
+    animation-duration: 0.1s;
+    animation-name: popup;
+    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
+}
+.toaster.error
+{
+    background: linear-gradient(#e74c3c,#c0392b);
+}
+@keyframes popup {
+    from {
+        transform: translate(-50%,100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%,-100%);
+        opacity: 1;
+    }
+}
+
+.flow-chart
+{
+    flex-grow: 1;
+    background: #555;
+
+    //background-color: #34495e;
+    background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
+    background-size:50px 50px;
+    box-shadow: 0px 0px 100px 0px rgba(0,0,0,0.3) inset;
 }
 
 .flow-chart * {
@@ -20,7 +140,7 @@
 .ContextMenu
 {
     box-sizing: border-box;
-    width: 200px;
+    width: 250px;
     height: 300px;
     background: rgba(50,50,50,0.95);
     position: absolute;
@@ -30,6 +150,7 @@
     border: 1px solid rgba(255,255,255,0.05);
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.5);
     display: none;
+    overflow: hidden;
 }
 
 .ContextMenu input
@@ -54,16 +175,38 @@
 {
     font-weight: bold;
     background: rgba(0,0,0,0.1);
+    padding: 4px;
 }
 
 .ContextMenu .category .item
 {
     font-weight: normal;
-    padding: 2px;
+    padding: 4px;
     font-size: 80%;
+}
+
+.ContextMenu .category .item .argument
+{
+    opacity: 0.75;
+    font-size: 80%;
+    pointer-events: inherit;
+}
+
+.ContextMenu .category .item .return
+{
+    opacity: 0.75;
+    font-size: 80%;
+    pointer-events: inherit;
+}
+
+.ContextMenu .category .item .arrow:before
+{
+    content: "\2192";
+    margin-right: 4px;
+    opacity: 0.75;
 }
 
 .ContextMenu .category .item:hover, .ContextMenu .category .item.selected
 {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
 }

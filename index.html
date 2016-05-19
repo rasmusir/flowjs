@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
         <title>Flow.JS Test</title>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js"> </script>
+        <script src="beautify.js"> </script>
+
         <script src="src/svg.js"> </script>
         <script src="src/svg.filter.js"> </script>
         <script src="src/svg.foreignobject.js"> </script>
+
+        <script src="tests/a.js"> </script>
         <script src="src/flow.js"> </script>
         <script src="src/chart.js"> </script>
         <script src="src/block.js"> </script>
@@ -15,29 +21,22 @@
         <script src="src/definition.js"> </script>
         <script src="src/instance.js"> </script>
         <script src="src/contextmenu.js"> </script>
+        <script src="src/toaster.js"> </script>
 
         <!-- FLOW DEFINITIONS -->
         <script src="test.js"> </script>
         <!-- FLOW DEFINITIONS -->
 
+        <script src="app.js"> </script>
+
         <link href="src/flow.css" rel="stylesheet" type="text/css">
-        <style>
-        body, html
-        {
-            height: 100%;
-            width: 100%;
-            position: relative;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        </style>
     </head>
     <body>
-        <script>
-        let c = new FLOW.Chart(document.body);
-        let d = FLOW.getDefinition("test");
-
-        </script>
+        <div class="sidebar">
+            <button> Compile and run! </button>
+        </div>
+        <div class="holder">
+            <div class="tabs"> </div>
+        </div>
     </body>
 </html>
